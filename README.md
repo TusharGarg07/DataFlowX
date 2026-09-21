@@ -117,3 +117,51 @@ The application starts on `http://localhost:8080`
 ## License
 
 This project is for educational and portfolio purposes.
+
+## Infrastructure & Deployment (Phase 8)
+
+This project has been dockerized for reproducible execution without relying on a local development setup.
+
+### Prerequisites
+- Docker & Docker Compose
+- Git
+- Java 21 (only if running without Docker)
+
+### Environment Configuration
+The application externalizes configuration for deployment. You must configure environment variables.
+Copy the example environment file and update it with secure values (do not commit this file):
+```bash
+cp .env.example .env
+```
+Update `.env` locally as needed. 
+
+### Run with Docker
+Start the PostgreSQL database and Spring Boot application:
+```bash
+docker compose up --build
+```
+
+### Stop
+Stop the containers safely:
+```bash
+docker compose down
+```
+
+**Stop and remove database volume:**
+If you need to wipe your local database data completely (this removes persisted PostgreSQL data):
+```bash
+docker compose down -v
+```
+
+### Tests
+To run the full suite of integration tests locally using the Maven Wrapper (Docker is not required as tests run in-memory):
+```bash
+./mvnw test
+```
+(On Windows Command Prompt, use `mvnw.cmd test`).
+
+### Accessing the Application
+- **API:** http://localhost:8080
+- **Swagger UI:** http://localhost:8080/swagger-ui/index.html
+- **API Docs:** http://localhost:8080/v3/api-docs
+

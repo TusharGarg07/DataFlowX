@@ -84,3 +84,6 @@ Desktop.ini
 # Spring Boot
 spring-boot-*.log
 apache-maven-3.9.5/
+
+# Environment Variables
+.env
