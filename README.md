@@ -95,6 +95,7 @@ DATABASE_PASSWORD=your_password
 ## Running Tests
 
 ```bash
+cd backend
 ./mvnw test
 ```
 
@@ -103,12 +104,14 @@ Tests use an in-memory H2 database and do not require a running PostgreSQL insta
 ## Building the Project
 
 ```bash
+cd backend
 ./mvnw clean install
 ```
 
 ## Running the Application
 
 ```bash
+cd backend
 ./mvnw spring-boot:run
 ```
 
@@ -129,9 +132,9 @@ This project has been dockerized for reproducible execution without relying on a
 
 ### Environment Configuration
 The application externalizes configuration for deployment. You must configure environment variables.
-Copy the example environment file and update it with secure values (do not commit this file):
+Copy the example environment file inside `backend/` and update it with secure values (do not commit this file):
 ```bash
-cp .env.example .env
+cp backend/.env.example backend/.env
 ```
 Update `.env` locally as needed. 
 
@@ -156,12 +159,14 @@ docker compose down -v
 ### Tests
 To run the full suite of integration tests locally using the Maven Wrapper (Docker is not required as tests run in-memory):
 ```bash
+cd backend
 ./mvnw test
 ```
-(On Windows Command Prompt, use `mvnw.cmd test`).
+(On Windows Command Prompt, use `cd backend && mvnw.cmd test`).
 
 ### Accessing the Application
 - **API:** http://localhost:8080
 - **Swagger UI:** http://localhost:8080/swagger-ui/index.html
 - **API Docs:** http://localhost:8080/v3/api-docs
+
 

@@ -1,0 +1,5 @@
+{
+  "behavior": "FK_CONSTRAINT_VIOLATION_500",
+  "exception": "jakarta.servlet.ServletException",
+  "message": "Deleting a dataset with associated jobs causes a database FK constraint violation."
+}

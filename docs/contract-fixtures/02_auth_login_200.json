@@ -1,0 +1,7 @@
+{
+  "id" : 7,
+  "username" : "spikeuser",
+  "email" : "spikeuser@example.com",
+  "role" : "USER",
+  "token" : "<SANITIZED_JWT_TOKEN>"
+}

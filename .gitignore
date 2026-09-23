@@ -87,3 +87,11 @@ apache-maven-3.9.5/
 
 # Environment Variables
 .env
+*.env
+.env.local
+
+# Frontend
+node_modules/
+dist/
+.vite/
+
