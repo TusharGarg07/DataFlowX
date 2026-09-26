@@ -6,6 +6,7 @@ import com.dataflowx.auth.repository.UserRepository;
 import com.dataflowx.dataset.entity.Dataset;
 import com.dataflowx.dataset.entity.DatasetStatus;
 import com.dataflowx.dataset.repository.DatasetRepository;
+import com.dataflowx.job.repository.JobRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,9 @@ class DatasetControllerIntegrationTest {
     private DatasetRepository datasetRepository;
 
     @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private User alice;
@@ -53,6 +57,7 @@ class DatasetControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        jobRepository.deleteAll();
         datasetRepository.deleteAll();
         userRepository.deleteAll();
 
