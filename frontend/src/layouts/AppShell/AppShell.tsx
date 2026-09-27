@@ -37,15 +37,11 @@ export function AppShell() {
   };
 
   const navItems = [
-    ...(user?.role === 'ADMIN'
-      ? [
-          {
-            to: '/dashboard',
-            label: 'Dashboard',
-            icon: LayoutDashboard,
-          },
-        ]
-      : []),
+    {
+      to: '/dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+    },
     {
       to: '/datasets',
       label: 'Datasets',

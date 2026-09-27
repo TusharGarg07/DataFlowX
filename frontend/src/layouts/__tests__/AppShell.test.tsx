@@ -35,7 +35,7 @@ describe('AppShell', () => {
     expect(screen.getAllByText('DataFlowX').length).toBeGreaterThan(0);
     expect(screen.getByText('Datasets View')).toBeInTheDocument();
     expect(screen.getAllByText('johndoe').length).toBeGreaterThan(0);
-    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument(); // Dashboard nav item hidden for USER
+    expect(screen.getByText('Dashboard')).toBeInTheDocument(); // Dashboard nav item available to all authenticated roles in F5
   });
 
   it('renders Dashboard nav link for ADMIN role', () => {

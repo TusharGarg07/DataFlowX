@@ -5,7 +5,6 @@ import {
   LoginPage,
   RegisterPage,
   RequireAuth,
-  RequireRole,
   useAuth,
 } from '../../features/auth';
 import {
@@ -14,7 +13,7 @@ import {
   DatasetCreatePage,
 } from '../../features/datasets';
 import { JobListPage, JobDetailPage } from '../../features/jobs';
-import { DashboardPagePlaceholder } from '../../features/dashboard/pages/DashboardPagePlaceholder';
+import { DashboardPage } from '../../features/dashboard';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -93,14 +92,7 @@ const router = createBrowserRouter([
       { path: '/datasets/:id', element: <DatasetDetailPage /> },
       { path: '/jobs', element: <JobListPage /> },
       { path: '/jobs/:id', element: <JobDetailPage /> },
-      {
-        path: '/dashboard',
-        element: (
-          <RequireRole role="ADMIN">
-            <DashboardPagePlaceholder />
-          </RequireRole>
-        ),
-      },
+      { path: '/dashboard', element: <DashboardPage /> },
     ],
   },
   {
