@@ -90,20 +90,21 @@ export function DatasetListPage() {
         </div>
         <Link
           to="/datasets/new"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition shadow-xs"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4" aria-hidden="true" />
           <span>New Dataset</span>
         </Link>
       </div>
 
       {deleteError && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div role="alert" className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1">{deleteError}</div>
           <button
+            type="button"
             onClick={() => setDeleteError(null)}
-            className="text-xs font-semibold text-red-700 hover:underline"
+            className="text-xs font-semibold text-red-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
           >
             Dismiss
           </button>
@@ -129,7 +130,10 @@ export function DatasetListPage() {
 
       {/* Pagination Footer */}
       {data && totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs text-sm">
+        <nav
+          aria-label="Pagination"
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs text-sm"
+        >
           <div className="text-slate-500 text-xs">
             Showing Page <span className="font-semibold text-slate-900">{currentPage + 1}</span> of{' '}
             <span className="font-semibold text-slate-900">{totalPages}</span> ({data.totalElements} total items)
@@ -137,23 +141,27 @@ export function DatasetListPage() {
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setParams({ page: Math.max(0, currentPage - 1) })}
               disabled={currentPage === 0 || isLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition"
+              aria-label="Previous page"
+              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
               <span>Previous</span>
             </button>
             <button
+              type="button"
               onClick={() => setParams({ page: currentPage + 1 })}
               disabled={currentPage >= totalPages - 1 || isLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition"
+              aria-label="Next page"
+              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <span>Next</span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </nav>
       )}
 
       {/* Delete Confirmation Modal */}

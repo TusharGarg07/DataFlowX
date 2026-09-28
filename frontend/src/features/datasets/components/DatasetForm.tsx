@@ -69,15 +69,18 @@ export function DatasetForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div
+          role="alert"
+          className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
           <div>{error}</div>
         </div>
       )}
 
       <div>
         <label htmlFor="name" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-          Dataset Name <span className="text-red-500">*</span>
+          Dataset Name <span className="text-red-500" aria-hidden="true">*</span>
         </label>
         <input
           id="name"
@@ -86,13 +89,20 @@ export function DatasetForm({
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Genome Sequence Analysis 2026"
           disabled={isSubmitting}
-          className={`w-full px-4 py-3 rounded-lg border text-sm transition focus:outline-none focus:ring-2 ${
+          aria-required="true"
+          aria-invalid={Boolean(fieldErrors.name)}
+          aria-describedby={fieldErrors.name ? 'dataset-name-error' : undefined}
+          className={`w-full px-4 py-3 rounded-lg border text-sm transition focus-visible:outline-none focus-visible:ring-2 ${
             fieldErrors.name
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-              : 'border-slate-200 focus:ring-brand-500 focus:border-brand-500'
+              ? 'border-red-300 focus-visible:ring-red-500 focus-visible:border-red-500'
+              : 'border-slate-200 focus-visible:ring-brand-500 focus-visible:border-brand-500'
           }`}
         />
-        {fieldErrors.name && <p className="text-xs text-red-600 mt-1">{fieldErrors.name}</p>}
+        {fieldErrors.name && (
+          <p id="dataset-name-error" role="alert" className="text-xs text-red-600 mt-1">
+            {fieldErrors.name}
+          </p>
+        )}
       </div>
 
       <div>
@@ -106,26 +116,33 @@ export function DatasetForm({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Provide optional details about dataset provenance, format, or notes..."
           disabled={isSubmitting}
-          className={`w-full px-4 py-3 rounded-lg border text-sm transition focus:outline-none focus:ring-2 ${
+          aria-invalid={Boolean(fieldErrors.description)}
+          aria-describedby={fieldErrors.description ? 'dataset-desc-error' : undefined}
+          className={`w-full px-4 py-3 rounded-lg border text-sm transition focus-visible:outline-none focus-visible:ring-2 ${
             fieldErrors.description
-              ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-              : 'border-slate-200 focus:ring-brand-500 focus:border-brand-500'
+              ? 'border-red-300 focus-visible:ring-red-500 focus-visible:border-red-500'
+              : 'border-slate-200 focus-visible:ring-brand-500 focus-visible:border-brand-500'
           }`}
         />
-        {fieldErrors.description && <p className="text-xs text-red-600 mt-1">{fieldErrors.description}</p>}
+        {fieldErrors.description && (
+          <p id="dataset-desc-error" role="alert" className="text-xs text-red-600 mt-1">
+            {fieldErrors.description}
+          </p>
+        )}
       </div>
 
       {isEditMode && (
         <div>
           <label htmlFor="status" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-            Status <span className="text-red-500">*</span>
+            Status <span className="text-red-500" aria-hidden="true">*</span>
           </label>
           <select
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as DatasetStatus)}
             disabled={isSubmitting}
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 text-sm transition focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
+            aria-required="true"
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 bg-white"
           >
             <option value="ACTIVE">ACTIVE</option>
             <option value="ARCHIVED">ARCHIVED</option>
@@ -139,7 +156,7 @@ export function DatasetForm({
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             Cancel
           </button>
@@ -147,11 +164,11 @@ export function DatasetForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-5 py-2.5 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
+          className="px-5 py-2.5 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
               <span>{isEditMode ? 'Saving Changes...' : 'Creating Dataset...'}</span>
             </>
           ) : (

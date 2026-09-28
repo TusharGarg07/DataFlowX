@@ -4,7 +4,7 @@ import { DeleteDatasetDialog } from '../components/DeleteDatasetDialog';
 import { ApiError } from '../../../shared/api/ApiError';
 
 describe('Delete Flow', () => {
-  it('renders confirmation dialog text and buttons correctly', () => {
+  it('renders confirmation dialog text and buttons correctly with accessible attributes', () => {
     render(
       <DeleteDatasetDialog
         isOpen={true}
@@ -14,7 +14,15 @@ describe('Delete Flow', () => {
       />
     );
 
-    expect(screen.getByRole('heading', { name: /Delete Dataset/i })).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute('aria-labelledby', 'delete-dialog-title');
+    expect(dialog).toHaveAttribute('aria-describedby', 'delete-dialog-desc');
+
+    expect(screen.getByRole('heading', { name: /Delete Dataset/i })).toHaveAttribute(
+      'id',
+      'delete-dialog-title'
+    );
     expect(screen.getByText(/Sample Dataset/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Delete Dataset$/i })).toBeInTheDocument();
@@ -38,6 +46,23 @@ describe('Delete Flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /^Delete Dataset$/i }));
     expect(mockConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers onCancel when Escape key is pressed', () => {
+    const mockCancel = vi.fn();
+
+    render(
+      <DeleteDatasetDialog
+        isOpen={true}
+        datasetName="Sample Dataset"
+        onConfirm={vi.fn()}
+        onCancel={mockCancel}
+      />
+    );
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Escape', code: 'Escape' });
+    expect(mockCancel).toHaveBeenCalledTimes(1);
   });
 
   it('verifies safe user-facing error message on HTTP 500 deletion failure', () => {

@@ -12,7 +12,6 @@ export function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -67,8 +66,11 @@ export function LoginPage() {
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div
+          role="alert"
+          className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
           <div>{error}</div>
         </div>
       )}
@@ -76,7 +78,7 @@ export function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <div>
           <label htmlFor="email" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-            Email address
+            Email address <span className="text-red-500" aria-hidden="true">*</span>
           </label>
           <input
             id="email"
@@ -85,18 +87,25 @@ export function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@company.com"
             disabled={isSubmitting}
-            className={`w-full px-4 py-3 rounded-lg border text-sm transition focus:outline-none focus:ring-2 ${
+            aria-required="true"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+            className={`w-full px-4 py-3 rounded-lg border text-sm transition focus-visible:outline-none focus-visible:ring-2 ${
               fieldErrors.email
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                : 'border-slate-200 focus:ring-brand-500 focus:border-brand-500'
+                ? 'border-red-300 focus-visible:ring-red-500 focus-visible:border-red-500'
+                : 'border-slate-200 focus-visible:ring-brand-500 focus-visible:border-brand-500'
             }`}
           />
-          {fieldErrors.email && <p className="text-xs text-red-600 mt-1">{fieldErrors.email}</p>}
+          {fieldErrors.email && (
+            <p id="email-error" role="alert" className="text-xs text-red-600 mt-1">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
 
         <div>
           <label htmlFor="password" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-            Password
+            Password <span className="text-red-500" aria-hidden="true">*</span>
           </label>
           <input
             id="password"
@@ -105,38 +114,30 @@ export function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             disabled={isSubmitting}
-            className={`w-full px-4 py-3 rounded-lg border text-sm transition focus:outline-none focus:ring-2 ${
+            aria-required="true"
+            aria-invalid={Boolean(fieldErrors.password)}
+            aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+            className={`w-full px-4 py-3 rounded-lg border text-sm transition focus-visible:outline-none focus-visible:ring-2 ${
               fieldErrors.password
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                : 'border-slate-200 focus:ring-brand-500 focus:border-brand-500'
+                ? 'border-red-300 focus-visible:ring-red-500 focus-visible:border-red-500'
+                : 'border-slate-200 focus-visible:ring-brand-500 focus-visible:border-brand-500'
             }`}
           />
-          {fieldErrors.password && <p className="text-xs text-red-600 mt-1">{fieldErrors.password}</p>}
-        </div>
-
-        <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2 cursor-pointer select-none text-slate-600">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="rounded border-slate-300 text-brand-600 focus:ring-brand-500"
-            />
-            <span>Remember me</span>
-          </label>
-          <a href="#forgot" onClick={(e) => e.preventDefault()} className="text-brand-600 font-medium hover:underline text-xs">
-            Forgot password?
-          </a>
+          {fieldErrors.password && (
+            <p id="password-error" role="alert" className="text-xs text-red-600 mt-1">
+              {fieldErrors.password}
+            </p>
+          )}
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 px-4 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-3 px-4 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition flex items-center justify-center gap-2 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
               <span>Signing in...</span>
             </>
           ) : (
@@ -147,7 +148,10 @@ export function LoginPage() {
 
       <div className="mt-8 text-center text-sm text-slate-500">
         Don&apos;t have an account?{' '}
-        <Link to="/register" className="text-brand-600 font-semibold hover:underline">
+        <Link
+          to="/register"
+          className="text-brand-600 font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+        >
           Register
         </Link>
       </div>

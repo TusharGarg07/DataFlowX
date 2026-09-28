@@ -18,6 +18,9 @@ import {
   ShieldAlert,
   Loader2,
   Database,
+  CheckCircle2,
+  ExternalLink,
+  X,
 } from 'lucide-react';
 
 export function DatasetDetailPage() {
@@ -36,12 +39,17 @@ export function DatasetDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [submissionFeedback, setSubmissionFeedback] = useState<{
+    type: 'success' | 'error';
+    jobId?: number;
+    message?: string;
+  } | null>(null);
 
   if (isInvalidId) {
     return (
       <div className="p-8 max-w-lg mx-auto my-12 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
         <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-6 h-6" />
+          <AlertCircle className="w-6 h-6" aria-hidden="true" />
         </div>
         <h2 className="text-xl font-bold text-slate-900 mb-2">Invalid Dataset ID</h2>
         <p className="text-sm text-slate-600 mb-6">
@@ -49,9 +57,9 @@ export function DatasetDetailPage() {
         </p>
         <Link
           to="/datasets"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>Return to Datasets</span>
         </Link>
       </div>
@@ -60,8 +68,8 @@ export function DatasetDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-brand-600 animate-spin mb-3" />
+      <div className="flex flex-col items-center justify-center py-20" role="status" aria-label="Loading dataset details">
+        <Loader2 className="w-8 h-8 text-brand-600 animate-spin mb-3" aria-hidden="true" />
         <p className="text-sm text-slate-500 font-medium">Loading dataset details...</p>
       </div>
     );
@@ -72,7 +80,7 @@ export function DatasetDetailPage() {
       return (
         <div className="p-8 max-w-lg mx-auto my-12 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
           <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center mx-auto mb-4">
-            <Database className="w-6 h-6" />
+            <Database className="w-6 h-6" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">Dataset Not Found</h2>
           <p className="text-sm text-slate-600 mb-6">
@@ -80,9 +88,9 @@ export function DatasetDetailPage() {
           </p>
           <Link
             to="/datasets"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             <span>Return to Datasets</span>
           </Link>
         </div>
@@ -92,7 +100,7 @@ export function DatasetDetailPage() {
       return (
         <div className="p-8 max-w-lg mx-auto my-12 bg-white rounded-2xl border border-slate-200 shadow-sm text-center">
           <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert className="w-6 h-6" />
+            <ShieldAlert className="w-6 h-6" aria-hidden="true" />
           </div>
           <h2 className="text-xl font-bold text-slate-900 mb-2">Access Restricted</h2>
           <p className="text-sm text-slate-600 mb-6">
@@ -100,9 +108,9 @@ export function DatasetDetailPage() {
           </p>
           <Link
             to="/datasets"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium hover:bg-brand-700 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             <span>Return to Datasets</span>
           </Link>
         </div>
@@ -112,15 +120,15 @@ export function DatasetDetailPage() {
 
   if (error || !dataset) {
     return (
-      <div className="p-8 max-w-lg mx-auto my-12 bg-white rounded-2xl border border-red-200 text-center">
-        <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-3" />
+      <div className="p-8 max-w-lg mx-auto my-12 bg-white rounded-2xl border border-red-200 text-center" role="alert">
+        <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-3" aria-hidden="true" />
         <h2 className="text-lg font-bold text-slate-900 mb-1">Failed to load dataset</h2>
         <p className="text-sm text-slate-500 mb-6">{error?.message || 'An unexpected error occurred.'}</p>
         <Link
           to="/datasets"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>Back to Datasets</span>
         </Link>
       </div>
@@ -177,23 +185,74 @@ export function DatasetDetailPage() {
       <div>
         <Link
           to="/datasets"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
           <span>Back to Datasets</span>
         </Link>
       </div>
 
       {deleteError && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div role="alert" className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1">{deleteError}</div>
           <button
+            type="button"
             onClick={() => setDeleteError(null)}
-            className="text-xs font-semibold text-red-700 hover:underline"
+            className="text-xs font-semibold text-red-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
           >
             Dismiss
           </button>
+        </div>
+      )}
+
+      {/* Submission Feedback Banner - Outside action button row to prevent layout reflow */}
+      {submissionFeedback && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`p-4 rounded-xl border text-xs flex items-center justify-between gap-3 animate-in fade-in duration-200 ${
+            submissionFeedback.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}
+        >
+          <div className="flex items-center gap-2 font-medium">
+            {submissionFeedback.type === 'success' ? (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
+                <span>Job #{submissionFeedback.jobId} submitted — status PENDING.</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" aria-hidden="true" />
+                <span>{submissionFeedback.message}</span>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {submissionFeedback.type === 'success' && submissionFeedback.jobId && (
+              <Link
+                to={`/jobs/${submissionFeedback.jobId}`}
+                className="inline-flex items-center gap-1 font-semibold text-emerald-900 underline hover:text-emerald-950 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+              >
+                <span>View Job</span>
+                <ExternalLink className="w-3 h-3" aria-hidden="true" />
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => setSubmissionFeedback(null)}
+              className={`p-0.5 rounded focus-visible:outline-none focus-visible:ring-2 ${
+                submissionFeedback.type === 'success'
+                  ? 'text-emerald-600 hover:text-emerald-800 focus-visible:ring-emerald-500'
+                  : 'text-red-600 hover:text-red-800 focus-visible:ring-red-500'
+              }`}
+              aria-label="Dismiss notification"
+            >
+              <X className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -207,11 +266,14 @@ export function DatasetDetailPage() {
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                 : 'bg-slate-100 text-slate-600 border border-slate-200'
             }`}
+            role="status"
+            aria-label={`Status: ${dataset.status}`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
                 dataset.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-slate-400'
               }`}
+              aria-hidden="true"
             />
             {dataset.status}
           </span>
@@ -219,36 +281,57 @@ export function DatasetDetailPage() {
 
         {isOwnerOrAdmin && !isEditing && (
           <div className="flex flex-wrap items-center gap-2">
-            <SubmitJobButton datasetId={dataset.id} />
+            <SubmitJobButton
+              datasetId={dataset.id}
+              hideFeedbackBanner
+              onSuccess={(job) => {
+                setSubmissionFeedback({
+                  type: 'success',
+                  jobId: job.id,
+                });
+              }}
+              onError={(msg) => {
+                setSubmissionFeedback({
+                  type: 'error',
+                  message: msg,
+                });
+              }}
+            />
             <button
+              type="button"
               onClick={() => setIsEditing(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              aria-label={`Edit ${dataset.name}`}
             >
-              <Edit2 className="w-3.5 h-3.5" />
+              <Edit2 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Edit</span>
             </button>
             <button
+              type="button"
               onClick={() => void handleToggleArchive()}
               disabled={updateMutation.isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              aria-label={dataset.status === 'ACTIVE' ? `Archive ${dataset.name}` : `Restore ${dataset.name}`}
             >
               {dataset.status === 'ACTIVE' ? (
                 <>
-                  <Archive className="w-3.5 h-3.5" />
+                  <Archive className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Archive</span>
                 </>
               ) : (
                 <>
-                  <RotateCcw className="w-3.5 h-3.5" />
+                  <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Restore</span>
                 </>
               )}
             </button>
             <button
+              type="button"
               onClick={() => setIsDeleteDialogOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-red-200 text-red-600 rounded-lg text-xs font-medium hover:bg-red-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-red-200 text-red-600 rounded-lg text-xs font-medium hover:bg-red-50 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              aria-label={`Delete ${dataset.name}`}
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Delete</span>
             </button>
           </div>

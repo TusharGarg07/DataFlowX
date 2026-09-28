@@ -61,11 +61,13 @@ export function AppShell() {
         <div
           className="fixed inset-0 bg-slate-900/60 z-40 lg:hidden backdrop-blur-sm"
           onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar Navigation */}
       <aside
+        aria-label="Sidebar navigation"
         className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#0B1120] text-slate-300 flex flex-col justify-between transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
@@ -75,21 +77,22 @@ export function AppShell() {
           <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800/80">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-blue-400 flex items-center justify-center shadow-md">
-                <Zap className="w-4 h-4 text-white" />
+                <Zap className="w-4 h-4 text-white" aria-hidden="true" />
               </div>
               <span className="font-bold text-lg text-white tracking-tight">DataFlowX</span>
             </div>
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+              className="lg:hidden text-slate-400 hover:text-white p-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               aria-label="Close menu"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
           {/* Nav List */}
-          <nav className="p-4 space-y-1">
+          <nav aria-label="Main menu" className="p-4 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -98,14 +101,14 @@ export function AppShell() {
                   to={item.to}
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition ${
+                    `flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                       isActive
                         ? 'bg-brand-600 text-white shadow-sm'
                         : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
                     }`
                   }
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4" aria-hidden="true" />
                   <span>{item.label}</span>
                 </NavLink>
               );
@@ -128,12 +131,13 @@ export function AppShell() {
               </div>
             </div>
             <button
+              type="button"
               onClick={handleLogout}
               title="Log out"
-              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition"
+              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               aria-label="Log out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -145,24 +149,31 @@ export function AppShell() {
         <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden text-slate-600 hover:text-slate-900 p-1 rounded-lg"
+              className="lg:hidden text-slate-600 hover:text-slate-900 p-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
               aria-label="Open menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">{getPageTitle()}</h1>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Visual notification bell (non-functional per clarification 4) */}
-            <div className="relative text-slate-400 p-2 rounded-lg hover:bg-slate-100 transition cursor-default">
+            {/* Visual notification bell indicator */}
+            <div
+              className="relative text-slate-400 p-2 rounded-lg hover:bg-slate-100 transition cursor-default"
+              aria-hidden="true"
+            >
               <Bell className="w-5 h-5" />
             </div>
 
             {/* User profile dropdown header item */}
             <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-xs border border-slate-200">
+              <div
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-semibold text-xs border border-slate-200"
+                aria-hidden="true"
+              >
                 {getInitials(user?.username)}
               </div>
               <div className="hidden sm:block text-left">
@@ -170,8 +181,10 @@ export function AppShell() {
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider">{user?.role}</p>
               </div>
               <button
+                type="button"
                 onClick={handleLogout}
-                className="text-xs font-medium text-slate-500 hover:text-red-600 transition ml-2 hidden sm:inline-block"
+                className="text-xs font-medium text-slate-500 hover:text-red-600 transition ml-2 hidden sm:inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded px-1"
+                aria-label="Log out of account"
               >
                 Logout
               </button>

@@ -48,7 +48,7 @@ export function JobListPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
-          <Workflow className="w-3.5 h-3.5" />
+          <Workflow className="w-3.5 h-3.5" aria-hidden="true" />
           <span>{data ? `${data.totalElements} Total Jobs` : 'Loading...'}</span>
         </div>
       </div>
@@ -67,7 +67,10 @@ export function JobListPage() {
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <nav
+          aria-label="Pagination"
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-200/80 shadow-xs"
+        >
           <div className="text-xs text-slate-500">
             Page <span className="font-semibold text-slate-900">{currentPage + 1}</span> of{' '}
             <span className="font-semibold text-slate-900">{totalPages}</span>
@@ -76,23 +79,27 @@ export function JobListPage() {
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setParams({ page: Math.max(0, currentPage - 1) })}
-              disabled={currentPage === 0}
-              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition"
+              disabled={currentPage === 0 || isLoading}
+              aria-label="Previous page"
+              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
               <span>Previous</span>
             </button>
             <button
+              type="button"
               onClick={() => setParams({ page: Math.min(totalPages - 1, currentPage + 1) })}
-              disabled={currentPage >= totalPages - 1}
-              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition"
+              disabled={currentPage >= totalPages - 1 || isLoading}
+              aria-label="Next page"
+              className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               <span>Next</span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </nav>
       )}
     </div>
   );

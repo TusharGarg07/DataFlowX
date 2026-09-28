@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { DatasetDetailPage } from '../pages/DatasetDetailPage';
 import * as AuthProviderModule from '../../auth/AuthProvider';
 import * as datasetQueries from '../queries';
+import * as jobsApi from '../../jobs/api';
 import { ApiError } from '../../../shared/api/ApiError';
 import type { DatasetResponse } from '../types';
 
@@ -26,6 +27,8 @@ vi.mock('../queries', async () => {
   };
 });
 
+vi.mock('../../jobs/api');
+
 const mockDataset: DatasetResponse = {
   id: 42,
   name: 'Genome Sample A',
@@ -42,7 +45,7 @@ describe('DatasetDetailPage', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
     });
     vi.mocked(AuthProviderModule.useAuth).mockReturnValue({
       status: 'authenticated',
@@ -103,6 +106,61 @@ describe('DatasetDetailPage', () => {
     // Cancel inline edit mode
     fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
     expect(screen.queryByText('Edit Dataset')).not.toBeInTheDocument();
+  });
+
+  it('renders all action buttons and decouples job submission feedback banner to prevent reflow', async () => {
+    vi.mocked(jobsApi.submitJob).mockResolvedValueOnce({
+      id: 99,
+      datasetId: 42,
+      status: 'PENDING',
+      progress: 0,
+      submittedAt: '2026-09-27T12:00:00Z',
+      startedAt: null,
+      completedAt: null,
+      errorMessage: null,
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/datasets/42']}>
+          <Routes>
+            <Route path="/datasets/:id" element={<DatasetDetailPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+
+    // Verify all 4 action buttons exist
+    const submitBtn = screen.getByRole('button', { name: /Submit Job/i });
+    const editBtn = screen.getByRole('button', { name: /Edit/i });
+    const archiveBtn = screen.getByRole('button', { name: /Archive/i });
+    const deleteBtn = screen.getByRole('button', { name: /Delete/i });
+
+    expect(submitBtn).toBeInTheDocument();
+    expect(editBtn).toBeInTheDocument();
+    expect(archiveBtn).toBeInTheDocument();
+    expect(deleteBtn).toBeInTheDocument();
+
+    // Submit job
+    fireEvent.click(submitBtn);
+
+    // Verify the feedback appears in a status role banner
+    await waitFor(() => {
+      const banner = screen.getByRole('status', { name: '' });
+      expect(banner).toBeInTheDocument();
+      expect(screen.getByText('Job #99 submitted — status PENDING.')).toBeInTheDocument();
+    });
+
+    // Ensure action buttons remain accessible and not displaced/hidden
+    expect(screen.getByRole('button', { name: /Submit Job/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Archive/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
+
+    // Dismiss notification
+    const dismissBtn = screen.getByRole('button', { name: /Dismiss notification/i });
+    fireEvent.click(dismissBtn);
+    expect(screen.queryByText('Job #99 submitted — status PENDING.')).not.toBeInTheDocument();
   });
 
   it('renders 403 Access Restricted view when user lacks authorization', () => {

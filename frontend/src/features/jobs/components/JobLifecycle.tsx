@@ -81,33 +81,38 @@ export function JobLifecycle({ job }: JobLifecycleProps) {
             aria-valuenow={job.progress}
             aria-valuemin={0}
             aria-valuemax={100}
+            aria-label="Execution progress"
           />
         </div>
       </div>
 
       {/* Lifecycle Timeline */}
-      <div className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200">
+      <div
+        role="list"
+        aria-label="Execution stages"
+        className="relative pl-6 sm:pl-8 space-y-6 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-200"
+      >
         {steps.map((step) => {
-          let icon = <Clock className="w-4 h-4 text-slate-400" />;
+          let icon = <Clock className="w-4 h-4 text-slate-400" aria-hidden="true" />;
           let circleBg = 'bg-slate-100 border-slate-300';
           let textColor = 'text-slate-500';
 
           if (step.status === 'completed') {
-            icon = <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
+            icon = <CheckCircle2 className="w-4 h-4 text-emerald-600" aria-hidden="true" />;
             circleBg = 'bg-emerald-50 border-emerald-500';
             textColor = 'text-slate-900';
           } else if (step.status === 'active') {
-            icon = <Loader2 className="w-4 h-4 text-brand-600 animate-spin" />;
+            icon = <Loader2 className="w-4 h-4 text-brand-600 animate-spin" aria-hidden="true" />;
             circleBg = 'bg-brand-50 border-brand-500 ring-4 ring-brand-100/50';
             textColor = 'text-brand-900 font-semibold';
           } else if (step.status === 'failed') {
-            icon = <XCircle className="w-4 h-4 text-red-600" />;
+            icon = <XCircle className="w-4 h-4 text-red-600" aria-hidden="true" />;
             circleBg = 'bg-red-50 border-red-500';
             textColor = 'text-red-900 font-semibold';
           }
 
           return (
-            <div key={step.key} className="relative flex items-start gap-4">
+            <div key={step.key} role="listitem" className="relative flex items-start gap-4">
               <div
                 className={`absolute -left-6 sm:-left-8 top-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center bg-white ${circleBg}`}
               >
@@ -130,8 +135,8 @@ export function JobLifecycle({ job }: JobLifecycleProps) {
 
       {/* Error Message Alert if Failed */}
       {job.status === 'FAILED' && job.errorMessage && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div role="alert" className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <h5 className="font-semibold mb-0.5">Failure Reason</h5>
             <p className="text-xs text-red-700 leading-relaxed font-mono">{job.errorMessage}</p>
