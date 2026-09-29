@@ -63,6 +63,7 @@ export function DatasetListPage() {
       await deleteMutation.mutateAsync(deletingDataset.id);
       setDeletingDataset(null);
     } catch (err) {
+      setDeletingDataset(null);
       if (err instanceof ApiError) {
         if (err.status === 403) {
           setDeleteError('You do not have permission to delete this dataset.');

@@ -71,6 +71,7 @@ public class DatasetServiceImpl implements DatasetService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dataset not found"));
         assertAuthorized(dataset, principal);
         datasetRepository.delete(dataset);
+        datasetRepository.flush();
     }
 
     private void assertAuthorized(Dataset dataset, SecurityUser principal) {

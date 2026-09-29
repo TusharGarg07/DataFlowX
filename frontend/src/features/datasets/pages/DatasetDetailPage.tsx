@@ -165,6 +165,7 @@ export function DatasetDetailPage() {
       setIsDeleteDialogOpen(false);
       navigate('/datasets', { replace: true });
     } catch (err) {
+      setIsDeleteDialogOpen(false);
       if (err instanceof ApiError) {
         if (err.status === 403) {
           setDeleteError('You do not have permission to delete this dataset.');

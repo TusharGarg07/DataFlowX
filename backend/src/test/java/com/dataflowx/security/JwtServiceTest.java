@@ -38,4 +38,25 @@ class JwtServiceTest {
         assertThat(expiredTokenService.isTokenValid(expiredToken, user)).isFalse();
         assertThat(expiredTokenService.extractSubject("not.a.jwt")).isEmpty();
     }
+
+    @Test
+    void productionProfileRejectsDefaultInsecureSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                new JwtService(JwtService.INSECURE_DEFAULT_SECRET, 60_000, prodEnv)
+        ).isInstanceOf(IllegalStateException.class)
+         .hasMessageContaining("Production profile requires a secure, non-default JWT_SECRET");
+    }
+
+    @Test
+    void productionProfileAcceptsValidSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        String strongSecret = "a-very-strong-production-secret-with-plenty-of-entropy-123456";
+        JwtService prodJwtService = new JwtService(strongSecret, 60_000, prodEnv);
+        assertThat(prodJwtService).isNotNull();
+    }
 }
