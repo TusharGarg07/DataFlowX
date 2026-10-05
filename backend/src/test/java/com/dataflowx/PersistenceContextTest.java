@@ -9,16 +9,14 @@ import com.dataflowx.dataset.repository.DatasetRepository;
 import com.dataflowx.job.entity.Job;
 import com.dataflowx.job.entity.JobStatus;
 import com.dataflowx.job.repository.JobRepository;
+import com.dataflowx.test.AbstractIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class PersistenceContextTest {
+class PersistenceContextTest extends AbstractIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -28,6 +26,13 @@ class PersistenceContextTest {
 
     @Autowired
     private JobRepository jobRepository;
+
+    @BeforeEach
+    void setUp() {
+        jobRepository.deleteAll();
+        datasetRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @Test
     void contextLoadsWithPersistenceRepositories() {

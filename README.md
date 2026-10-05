@@ -11,9 +11,14 @@ DataFlowX is an enterprise-style Research Data Processing Platform developed as 
 - **Java**: 21
 - **Framework**: Spring Boot 3.2.0
 - **Build Tool**: Maven
-- **Database**: PostgreSQL (H2 for tests)
+- **Java**: 21
+- **Framework**: Spring Boot 3.2.0
+- **Build Tool**: Maven
+- **Database**: PostgreSQL 15
+- **Database Migrations**: Flyway
+- **Testing**: JUnit 5, Mockito, MockMvc, Testcontainers (PostgreSQL 15)
 - **Security**: Spring Security + JWT (JJWT 0.12.6)
-- **ORM**: Spring Data JPA / Hibernate
+- **ORM**: Spring Data JPA / Hibernate (ddl-auto=validate)
 - **Async**: Spring `@Async` with bounded thread pool executor
 - **Validation**: Bean Validation (Jakarta)
 - **Packaging**: JAR
@@ -37,6 +42,7 @@ Modules: `auth`, `dataset`, `job`, `dashboard`, `security`, `common`, `config`
 - [x] **Phase 5** — Asynchronous Processing (Spring `@Async`, lifecycle, progress, failure)
 - [x] **Phase 6** — Dashboard (admin-only aggregate read model, DB-side COUNT queries)
 - [x] **Phase 7** — Quality & Hardening (validation, error consistency, pagination caps, logging, security review)
+- [x] **Phase 8** — Persistence Truth (Flyway migrations, PostgreSQL Testcontainers, ddl-auto=validate)
 
 ## API Overview
 
@@ -73,14 +79,15 @@ Modules: `auth`, `dataset`, `job`, `dashboard`, `security`, `common`, `config`
 - Spring Web
 - Spring Data JPA
 - PostgreSQL Driver
+- Flyway Core
 - Spring Security
 - Spring Boot Validation
 - Lombok
 - Spring Boot DevTools
 - JJWT (API / Impl / Jackson)
-- H2 (test scope)
 - Spring Boot Test (test scope)
 - Spring Security Test (test scope)
+- Testcontainers PostgreSQL (test scope)
 
 ## Local Database Configuration
 
@@ -92,14 +99,16 @@ DATABASE_USERNAME=your_username
 DATABASE_PASSWORD=your_password
 ```
 
+Schema management is handled via Flyway migrations (`V1__initial_schema.sql`). Hibernate validates the schema at boot time (`spring.jpa.hibernate.ddl-auto=validate`).
+
 ## Running Tests
 
 ```bash
 cd backend
-./mvnw test
+./mvnw clean test
 ```
 
-Tests use an in-memory H2 database and do not require a running PostgreSQL instance.
+Integration tests execute against a real PostgreSQL 15 container using Testcontainers. Docker Engine / Docker Desktop must be running.
 
 ## Building the Project
 
@@ -157,16 +166,12 @@ docker compose down -v
 ```
 
 ### Tests
-To run the full suite of integration tests locally using the Maven Wrapper (Docker is not required as tests run in-memory):
+To run the full suite of integration tests locally using the Maven Wrapper against PostgreSQL Testcontainers:
 ```bash
 cd backend
-./mvnw test
+./mvnw clean test
 ```
-(On Windows Command Prompt, use `cd backend && mvnw.cmd test`).
+(On Windows Command Prompt, use `cd backend && mvnw.cmd clean test`).
 
 ### Accessing the Application
 - **API:** http://localhost:8080
-- **Swagger UI:** http://localhost:8080/swagger-ui/index.html
-- **API Docs:** http://localhost:8080/v3/api-docs
-
-

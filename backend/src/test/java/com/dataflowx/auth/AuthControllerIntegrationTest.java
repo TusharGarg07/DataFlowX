@@ -5,13 +5,15 @@ import com.dataflowx.auth.entity.UserRole;
 import com.dataflowx.auth.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.dataflowx.dataset.repository.DatasetRepository;
+import com.dataflowx.job.repository.JobRepository;
+import com.dataflowx.test.AbstractIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -21,10 +23,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
-class AuthControllerIntegrationTest {
+class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,7 +36,21 @@ class AuthControllerIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private DatasetRepository datasetRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    void setUp() {
+        jobRepository.deleteAll();
+        datasetRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
 
     @Test
     void registrationHashesThePasswordAssignsUserRoleAndReturnsNoPassword() throws Exception {
