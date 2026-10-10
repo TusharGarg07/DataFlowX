@@ -21,6 +21,8 @@ public class JwtService {
 
     public static final String INSECURE_DEFAULT_SECRET = "local-development-secret-must-be-at-least-32-characters";
     public static final String TEST_SECRET = "test-only-secret-must-be-at-least-32-characters";
+    public static final String EXAMPLE_PLACEHOLDER_SECRET = "change-me-to-a-secure-secret-at-least-32-characters";
+    public static final String LOCAL_COMPOSE_FALLBACK_SECRET = "dataflowx-local-docker-compose-secret-key-32chars";
 
     private final SecretKey signingKey;
     private final long expirationMs;
@@ -39,7 +41,11 @@ public class JwtService {
             @Autowired(required = false) Environment environment
     ) {
         if (environment != null && (environment.matchesProfiles("prod") || environment.matchesProfiles("production"))) {
-            if (secret == null || secret.isBlank() || secret.equals(INSECURE_DEFAULT_SECRET) || secret.equals(TEST_SECRET)) {
+            if (secret == null || secret.isBlank() || secret.length() < 32
+                    || secret.equals(INSECURE_DEFAULT_SECRET)
+                    || secret.equals(TEST_SECRET)
+                    || secret.equals(EXAMPLE_PLACEHOLDER_SECRET)
+                    || secret.equals(LOCAL_COMPOSE_FALLBACK_SECRET)) {
                 throw new IllegalStateException("Production profile requires a secure, non-default JWT_SECRET environment variable");
             }
         }

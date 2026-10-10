@@ -11,9 +11,6 @@ DataFlowX is an enterprise-style Research Data Processing Platform developed as 
 - **Java**: 21
 - **Framework**: Spring Boot 3.2.0
 - **Build Tool**: Maven
-- **Java**: 21
-- **Framework**: Spring Boot 3.2.0
-- **Build Tool**: Maven
 - **Database**: PostgreSQL 15
 - **Database Migrations**: Flyway
 - **Testing**: JUnit 5, Mockito, MockMvc, Testcontainers (PostgreSQL 15)
@@ -43,6 +40,7 @@ Modules: `auth`, `dataset`, `job`, `dashboard`, `security`, `common`, `config`
 - [x] **Phase 6** — Dashboard (admin-only aggregate read model, DB-side COUNT queries)
 - [x] **Phase 7** — Quality & Hardening (validation, error consistency, pagination caps, logging, security review)
 - [x] **Phase 8** — Persistence Truth (Flyway migrations, PostgreSQL Testcontainers, ddl-auto=validate)
+- [x] **Phase 9** — Deployment Truth (Docker Compose topology, Nginx reverse proxy, Vercel SPA readiness, CORS & Health)
 
 ## API Overview
 
@@ -130,48 +128,119 @@ The application starts on `http://localhost:8080`
 
 This project is for educational and portfolio purposes.
 
-## Infrastructure & Deployment (Phase 8)
+## Deployment & Infrastructure (Phase 9)
 
-This project has been dockerized for reproducible execution without relying on a local development setup.
+DataFlowX provides two deployment topologies:
+1. **Local / Self-Hosted Production-Like Topology** (Docker Compose with unified Nginx reverse proxy gateway)
+2. **Public Portfolio Topology** (Vercel static frontend + Cloud container backend + Managed PostgreSQL)
 
-### Prerequisites
-- Docker & Docker Compose
-- Git
-- Java 21 (only if running without Docker)
+---
 
-### Environment Configuration
-The application externalizes configuration for deployment. You must configure environment variables.
-Copy the example environment file inside `backend/` and update it with secure values (do not commit this file):
-```bash
-cp backend/.env.example backend/.env
+### Local Topology: Docker Compose with Unified Nginx Gateway
+
+In local production-like deployment, all services run within a dedicated private Docker bridge network (`dataflowx-network`). Only port **80** is published to the host machine.
+
 ```
-Update `.env` locally as needed. 
-
-### Run with Docker
-Start the PostgreSQL database and Spring Boot application:
-```bash
-docker compose up --build
+Browser (User)
+      │
+      │ HTTP :80
+      ▼
+┌────────────────────────────────────────────────────────┐
+│                     Nginx Gateway                      │
+│  ┌─────────────────────────┬─────────────────────────┐ │
+│  │ / (Static React SPA)    │ /api/ (Reverse Proxy)   │ │
+│  │                         │                         │ │
+│  └─────────────────────────┴────────────┬────────────┘ │
+└─────────────────────────────────────────┼──────────────┘
+                                          │ Internal Network
+                                          ▼
+                   ┌─────────────────────────────────────────────┐
+                   │             Spring Boot Backend             │
+                   │  (Port 8080 internal, Profile: local/prod)  │
+                   └──────────────────────┬──────────────────────┘
+                                          │ Internal Network (JDBC)
+                                          ▼
+                   ┌─────────────────────────────────────────────┐
+                   │             PostgreSQL 15 Database          │
+                   │  (Port 5432 internal, Volume: postgres_data)│
+                   └─────────────────────────────────────────────┘
 ```
 
-### Stop
-Stop the containers safely:
-```bash
-docker compose down
-```
+#### Network & Port Isolation
+- **Frontend / Gateway (Nginx):** Listens on port `80` and is the **only service exposed to the host machine** (`0.0.0.0:80->80`).
+- **Spring Boot Backend:** Runs on port `8080` internally within `dataflowx-network`. **No host port is published.** Nginx reverse-proxies `/api/` requests to `http://backend:8080`.
+- **PostgreSQL Database:** Runs on port `5432` internally within `dataflowx-network`. **No host port is published.** Accessible only to the backend.
 
-**Stop and remove database volume:**
-If you need to wipe your local database data completely (this removes persisted PostgreSQL data):
-```bash
-docker compose down -v
-```
+#### Managing the Docker Compose Stack
 
-### Tests
-To run the full suite of integration tests locally using the Maven Wrapper against PostgreSQL Testcontainers:
-```bash
-cd backend
-./mvnw clean test
-```
-(On Windows Command Prompt, use `cd backend && mvnw.cmd clean test`).
+1. **Start the Stack:**
+   ```bash
+   docker compose up -d
+   ```
+   *Dependency lifecycle:* PostgreSQL initializes first (`pg_isready` healthcheck) → Backend boots in `local` profile (or `prod` when configured via `SPRING_PROFILES_ACTIVE=prod`), runs Flyway migrations, and reaches healthy status (`GET /api/v1/health`) → Frontend Nginx service starts.
 
-### Accessing the Application
-- **API:** http://localhost:8080
+2. **Verify Container Status:**
+   ```bash
+   docker compose ps
+   ```
+   Confirm all services are running and healthy:
+   - `dataflowx-postgres`: `Up (healthy)`, port `5432/tcp` (internal only)
+   - `dataflowx-backend`: `Up (healthy)`, port `8080/tcp` (internal only)
+   - `dataflowx-frontend`: `Up`, port `0.0.0.0:80->80/tcp`
+
+3. **Verify HTTP Endpoints (Smoke Tests):**
+   - **Frontend UI:** `http://localhost/` (Returns HTTP 200 and loads the React SPA)
+   - **SPA Deep Route:** `http://localhost/datasets` (Returns HTTP 200; Nginx `try_files` rewrite serves `index.html`)
+   - **Backend Health:** `http://localhost/api/v1/health` (Returns HTTP 200 with `{"status":"UP"}` via Nginx reverse proxy)
+
+4. **Stop the Stack Safely (Preserve Database Volume):**
+   ```bash
+   docker compose down
+   ```
+   *Note:* Running `docker compose down` stops and removes containers while keeping the persistent PostgreSQL volume (`postgres_data`) intact.
+
+5. **Wipe Database Volume (Clean Reset):**
+   ```bash
+   docker compose down -v
+   ```
+   *Warning:* The `-v` flag removes persisted database data. Use only when a complete state reset is explicitly intended.
+
+---
+
+### Public Deployment Architecture (Target Specifications)
+
+For public portfolio demonstration, the static frontend and dynamic backend are decoupled:
+
+#### 1. Frontend on Vercel (Static SPA)
+- **Root Directory:** `frontend`
+- **Framework Preset:** `Vite`
+- **Build Command:** `npm run build` (`tsc && vite build`)
+- **Output Directory:** `dist`
+- **SPA Routing:** Configured via `frontend/vercel.json` rewrite rules (`{"source": "/(.*)", "destination": "/index.html"}`) to prevent HTTP 404 errors when refreshing client-side routes (`/datasets`, `/jobs`).
+- **Environment Variable:** Set `VITE_API_BASE_URL` in the Vercel project dashboard to the public HTTPS URL of the backend (e.g., `https://api.yourdomain.com/api/v1`). For local development and local Docker, it defaults to `/api/v1` for relative same-origin proxying.
+
+#### 2. Backend on Cloud Container Platform (Target: Render, Railway, Fly.io, or VPS)
+- **Container Image:** Built via multi-stage `backend/Dockerfile` using Eclipse Temurin 21. Runs under unprivileged user `spring:spring` (UID 10001) with container-aware JVM flags (`-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0`).
+- **Dynamic Port Binding:** Automatically binds via `server.port=${PORT:8080}` in `application-prod.properties` to support cloud PaaS platforms injecting `$PORT`.
+- **Active Profile:** Requires `SPRING_PROFILES_ACTIVE=prod`.
+
+#### 3. Managed PostgreSQL (Target: Neon, Supabase, Render Postgres)
+- **Engine Parity:** PostgreSQL 15.x.
+- **SSL Enforcement:** Production JDBC URL must require TLS: `jdbc:postgresql://<host>:<port>/<dbname>?sslmode=require`.
+- **Schema Management:** Flyway automatically applies migrations (`V1__initial_schema.sql`) on startup. Hibernate validates tables with `spring.jpa.hibernate.ddl-auto=validate`.
+
+#### 4. Production Environment Variables & Secrets Reference
+
+| Variable | Target Service | Description & Validation Rule |
+| :--- | :--- | :--- |
+| `DATABASE_URL` | Production Backend | Full JDBC URL mapped to `spring.datasource.url`. Must require SSL/TLS in cloud environments. |
+| `DATABASE_USERNAME` | Production Backend | Database username mapped to `spring.datasource.username`. |
+| `DATABASE_PASSWORD` | Production Backend | Database password mapped to `spring.datasource.password`. |
+| `PORT` | Production Backend | Server port mapped to `server.port` (defaults to `8080` if unset). |
+| `JWT_SECRET` | Production Backend | HMAC-SHA256 signing secret. **Must be at least 32 characters.** Known placeholders (`change-me-to-a-secure-secret-at-least-32-characters`), Compose fallback (`dataflowx-local-docker-compose-secret-key-32chars`), insecure defaults, and test keys fail fast at startup in `prod` profile. |
+| `JWT_EXPIRATION_MS` | Production Backend | Token lifespan in milliseconds (defaults to `3600000` = 1 hour). |
+| `APP_CORS_ALLOWED_ORIGINS` | Production Backend | Comma-separated allowed origins (e.g. `https://dataflowx.vercel.app`). No wildcard `*` allowed with credentials enabled. |
+| `VITE_API_BASE_URL` | Vercel Frontend | Target API base URL pointing to the deployed backend HTTPS endpoint. |
+
+> [!IMPORTANT]
+> **Production Secret Isolation:** While `docker-compose.yml` provides a local-only evaluation secret for local Docker testing (`dataflowx-local-docker-compose-secret-key-32chars`), all public production deployments must inject their own unique secret via the platform's secret manager or environment variables. Production deployments must never rely on Compose fallbacks. Public backend and database deployments remain pending operator infrastructure setup.

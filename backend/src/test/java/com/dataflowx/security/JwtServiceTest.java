@@ -51,6 +51,61 @@ class JwtServiceTest {
     }
 
     @Test
+    void productionProfileRejectsTestSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                new JwtService(JwtService.TEST_SECRET, 60_000, prodEnv)
+        ).isInstanceOf(IllegalStateException.class)
+         .hasMessageContaining("Production profile requires a secure, non-default JWT_SECRET");
+    }
+
+    @Test
+    void productionProfileRejectsExamplePlaceholderSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                new JwtService(JwtService.EXAMPLE_PLACEHOLDER_SECRET, 60_000, prodEnv)
+        ).isInstanceOf(IllegalStateException.class)
+         .hasMessageContaining("Production profile requires a secure, non-default JWT_SECRET");
+    }
+
+    @Test
+    void productionProfileRejectsLocalComposeFallbackSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                new JwtService(JwtService.LOCAL_COMPOSE_FALLBACK_SECRET, 60_000, prodEnv)
+        ).isInstanceOf(IllegalStateException.class)
+         .hasMessageContaining("Production profile requires a secure, non-default JWT_SECRET");
+    }
+
+    @Test
+    void productionProfileRejectsShortSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                new JwtService("too-short-key", 60_000, prodEnv)
+        ).isInstanceOf(IllegalStateException.class)
+         .hasMessageContaining("Production profile requires a secure, non-default JWT_SECRET");
+    }
+
+    @Test
+    void productionProfileRejectsBlankSecret() {
+        org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
+        prodEnv.setActiveProfiles("prod");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                new JwtService("   ", 60_000, prodEnv)
+        ).isInstanceOf(IllegalStateException.class)
+         .hasMessageContaining("Production profile requires a secure, non-default JWT_SECRET");
+    }
+
+    @Test
     void productionProfileAcceptsValidSecret() {
         org.springframework.mock.env.MockEnvironment prodEnv = new org.springframework.mock.env.MockEnvironment();
         prodEnv.setActiveProfiles("prod");

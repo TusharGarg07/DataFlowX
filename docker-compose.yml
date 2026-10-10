@@ -1,39 +1,65 @@
-version: '3.8'
-
 services:
-  postgres:
+  db:
     image: postgres:15-alpine
     container_name: dataflowx-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-dataflowx}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dataflowx}
       POSTGRES_DB: ${POSTGRES_DB:-dataflowx}
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dataflowx-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dataflowx} -d ${POSTGRES_DB:-dataflowx}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  app:
+  backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: dataflowx-app
-    ports:
-      - "8080:8080"
+    container_name: dataflowx-backend
+    restart: unless-stopped
     environment:
-      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-dataflowx}
-      - DATABASE_USERNAME=${POSTGRES_USER:-dataflowx}
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD:-dataflowx}
-      - JWT_SECRET=${JWT_SECRET:-local-development-secret-must-be-at-least-32-characters}
-      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-3600000}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-local}
+      DATABASE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-dataflowx}
+      DATABASE_USERNAME: ${POSTGRES_USER:-dataflowx}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-dataflowx}
+      JWT_SECRET: ${JWT_SECRET:-dataflowx-local-docker-compose-secret-key-32chars}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:3000,http://localhost:5173}
     depends_on:
-      postgres:
+      db:
         condition: service_healthy
+    networks:
+      - dataflowx-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dataflowx-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - dataflowx-network
+
+networks:
+  dataflowx-network:
+    driver: bridge
 
 volumes:
   postgres_data:
